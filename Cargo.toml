@@ -1,6 +1,6 @@
 [package]
 name = "leptos-use"
-version = "0.13.6"
+version = "0.13.7"
 edition = "2021"
 authors = ["Marc-Stefan Cassola"]
 categories = ["gui", "web-programming"]
@@ -327,21 +327,23 @@ use_timestamp = ["use_interval_fn", "use_raf_fn"]
 use_toggle = []
 use_to_string = []
 use_user_media = [
-  "use_window",
-  "web-sys/MediaDevices",
-  "web-sys/MediaStream",
-  "web-sys/MediaStreamConstraints",
-  "web-sys/MediaStreamTrack",
+    "use_window",
+    "web-sys/MediaDevices",
+    "web-sys/MediaStream",
+    "web-sys/MediaStreamConstraints",
+    "web-sys/MediaStreamTrack",
+    "web-sys/VideoFacingModeEnum",
 ]
 use_web_notification = [
-  "use_supported",
-  "use_window",
-  "use_event_listener",
-  "web-sys/Notification",
-  "web-sys/NotificationOptions",
-  "web-sys/NotificationPermission",
-  "web-sys/NotificationDirection",
-  "web-sys/VisibilityState",
+    "use_supported",
+    "use_window",
+    "use_event_listener",
+    "web-sys/Notification",
+    "web-sys/NotificationOptions",
+    "web-sys/NotificationPermission",
+    "web-sys/NotificationDirection",
+    "web-sys/MediaTrackConstraints",
+    "web-sys/VisibilityState"
 ]
 use_websocket = ["dep:web-sys", "dep:codee"]
 use_window = [
