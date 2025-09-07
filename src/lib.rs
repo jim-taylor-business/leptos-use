@@ -11,6 +11,7 @@ pub mod math;
 pub mod storage;
 pub mod utils;
 
+pub use codee::string::FromToStringCodec;
 pub use core::ReconnectLimit;
 
 // #[cfg(web_sys_unstable_apis)]
