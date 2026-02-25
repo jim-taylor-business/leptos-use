@@ -3,6 +3,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.1] - 2026-02-24
+
+### Fixes 🍕
+
+- Added `GeolocationPosition` and `GeolocationPositionError` web-sys features as dependencies for use_geolocation.
+- Updated `web-sys` to min version `0.3.86` because of Geolocation API changes.
+
+### Special thanks to our sponsor
+- @benwis
+
 ## [0.18.0] - 2026-01-11
 
 ### Breaking Changes 🛠
