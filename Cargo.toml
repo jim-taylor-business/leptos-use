@@ -30,13 +30,13 @@ http0_2 = { version = "0.2", optional = true, package = "http" }
 js-sys = "0.3"
 lazy_static = "1"
 
-leptos = { git = "https://github.com/jim-taylor-business/leptos.git", branch = "deploy_demo" }
-leptos_axum = { git = "https://github.com/jim-taylor-business/leptos.git", branch = "deploy_demo", default-features = false, optional = true }
-leptos_actix = { git = "https://github.com/jim-taylor-business/leptos.git", branch = "deploy_demo", default-features = false, optional = true }
+# leptos = { git = "https://github.com/jim-taylor-business/leptos.git", branch = "deploy_demo" }
+# leptos_axum = { git = "https://github.com/jim-taylor-business/leptos.git", branch = "deploy_demo", default-features = false, optional = true }
+# leptos_actix = { git = "https://github.com/jim-taylor-business/leptos.git", branch = "deploy_demo", default-features = false, optional = true }
 
-# leptos = "0.8"
-# leptos_axum = { version = "0.8", default-features = false, optional = true }
-# leptos_actix = { version = "0.8", default-features = false, optional = true }
+leptos = "0.8"
+leptos_axum = { version = "0.8", default-features = false, optional = true }
+leptos_actix = { version = "0.8", default-features = false, optional = true }
 
 num = { version = "0.4", optional = true }
 paste = "1"
