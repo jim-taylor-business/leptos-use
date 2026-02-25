@@ -306,8 +306,8 @@ where
                     .get_property_value("flex-direction")
                     .expect("failed to get flex-direction");
 
-                let scroll_left = target.scroll_left();
-                let scroll_left_abs = scroll_left.abs();
+                let scroll_left = target.scroll_left() as f64;
+                let scroll_left_abs = scroll_left.abs() as f64;
 
                 directions.update(|directions| {
                     directions.left = scroll_left < internal_x.get_untracked();
@@ -329,14 +329,14 @@ where
                 });
                 set_internal_x.set(scroll_left);
 
-                let mut scroll_top = target.scroll_top();
+                let mut scroll_top = target.scroll_top() as f64;
 
                 // patch for mobile compatibility
                 if target == document().unchecked_into::<web_sys::Element>() && scroll_top == 0.0 {
                     scroll_top = document().body().expect("failed to get body").scroll_top() as f64;
                 }
 
-                let scroll_top_abs = scroll_top.abs();
+                let scroll_top_abs = scroll_top.abs() as f64;
 
                 directions.update(|directions| {
                     directions.top = scroll_top < internal_y.get_untracked();
