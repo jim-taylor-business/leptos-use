@@ -66,10 +66,14 @@ pub fn use_locales_with_options(options: UseLocalesOptions) -> Signal<Vec<String
 
         let (locales, set_locales) = signal(read_navigator_languages());
 
-        let _ =
-            crate::use_event_listener(crate::use_window(), leptos::ev::languagechange, move |_| {
+        let _ = crate::use_event_listener_with_options(
+            crate::use_window(),
+            leptos::ev::languagechange,
+            move |_| {
                 set_locales.update(|locales| *locales = read_navigator_languages());
-            });
+            },
+            crate::UseEventListenerOptions::default().passive(true),
+        );
 
         locales.into()
     }

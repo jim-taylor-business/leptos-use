@@ -43,7 +43,9 @@ pub fn use_active_element() -> OptionLocalSignal<web_sys::Element> {
         active_element.set(Some(cur_active_element));
     }
 
-    let listener_options = UseEventListenerOptions::default().capture(true);
+    let listener_options = UseEventListenerOptions::default()
+        .capture(true)
+        .passive(true);
 
     let _ = use_event_listener_with_options(
         use_window(),

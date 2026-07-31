@@ -5,7 +5,7 @@ use default_struct_builder::DefaultBuilder;
 cfg_if! { if #[cfg(not(feature = "ssr"))] {
     use leptos::prelude::*;
     use crate::utils::IS_IOS;
-    use crate::{use_event_listener, use_event_listener_with_options, UseEventListenerOptions, sendwrap_fn};
+    use crate::{UseEventListenerOptions, sendwrap_fn, use_event_listener_with_options};
     use leptos::ev::{blur, click, pointerdown};
     use std::cell::Cell;
     use std::rc::Rc;
@@ -207,7 +207,7 @@ where
         };
 
         let remove_blur_listener = if detect_iframes {
-            Some(use_event_listener::<_, web_sys::Window, _, _>(
+            Some(use_event_listener_with_options::<_, web_sys::Window, _, _>(
                 window(),
                 blur,
                 move |event| {
@@ -228,6 +228,7 @@ where
                         Duration::ZERO,
                     );
                 },
+                UseEventListenerOptions::default().passive(true),
             ))
         } else {
             None

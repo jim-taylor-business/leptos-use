@@ -1,6 +1,6 @@
 #![cfg_attr(feature = "ssr", allow(unused_variables, unused_imports))]
 
-use crate::use_event_listener;
+use crate::{UseEventListenerOptions, use_event_listener_with_options};
 use cfg_if::cfg_if;
 use leptos::ev::visibilitychange;
 use leptos::prelude::*;
@@ -41,9 +41,14 @@ pub fn use_document_visibility() -> Signal<web_sys::VisibilityState> {
     let (visibility, set_visibility) = signal(inital_visibility);
 
     cfg_if! { if #[cfg(not(feature = "ssr"))] {
-        let _ = use_event_listener(document(), visibilitychange, move |_| {
-            set_visibility.set(document().visibility_state());
-        });
+        let _ = use_event_listener_with_options(
+            document(),
+            visibilitychange,
+            move |_| {
+                set_visibility.set(document().visibility_state());
+            },
+            UseEventListenerOptions::default().passive(true),
+        );
     }}
 
     visibility.into()

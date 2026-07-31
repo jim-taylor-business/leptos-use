@@ -1,6 +1,6 @@
 #![cfg_attr(feature = "ssr", allow(unused_variables, unused_imports))]
 
-use crate::use_event_listener;
+use crate::{UseEventListenerOptions, use_event_listener_with_options};
 use cfg_if::cfg_if;
 use leptos::ev::{blur, focus};
 use leptos::prelude::*;
@@ -41,8 +41,19 @@ pub fn use_window_focus() -> Signal<bool> {
     let (focused, set_focused) = signal(initial_focus);
 
     cfg_if! { if #[cfg(not(feature = "ssr"))] {
-        let _ = use_event_listener(window(), blur, move |_| set_focused.set(false));
-        let _ = use_event_listener(window(), focus, move |_| set_focused.set(true));
+        let listener_options = UseEventListenerOptions::default().passive(true);
+        let _ = use_event_listener_with_options(
+            window(),
+            blur,
+            move |_| set_focused.set(false),
+            listener_options,
+        );
+        let _ = use_event_listener_with_options(
+            window(),
+            focus,
+            move |_| set_focused.set(true),
+            listener_options,
+        );
     }}
 
     focused.into()

@@ -197,7 +197,8 @@ where
     #[cfg(not(feature = "ssr"))]
     {
         use crate::{
-            WatchOptions, sendwrap_fn, use_event_listener, use_window, watch_with_options,
+            UseEventListenerOptions, WatchOptions, sendwrap_fn, use_event_listener_with_options,
+            use_window, watch_with_options,
         };
         use send_wrapper::SendWrapper;
 
@@ -369,20 +370,26 @@ where
         }
 
         if listen_to_storage_changes {
+            let listener_options = UseEventListenerOptions::default().passive(true);
             // Listen to global storage events
-            let _ = use_event_listener(use_window(), leptos::ev::storage, {
-                let notify = notify.clone();
+            let _ = use_event_listener_with_options(
+                use_window(),
+                leptos::ev::storage,
+                {
+                    let notify = notify.clone();
 
-                move |ev| {
-                    let ev_key = ev.key();
-                    // Key matches or all keys deleted (None)
-                    if ev_key == Some(key.get_untracked()) || ev_key.is_none() {
-                        notify.notify()
+                    move |ev| {
+                        let ev_key = ev.key();
+                        // Key matches or all keys deleted (None)
+                        if ev_key == Some(key.get_untracked()) || ev_key.is_none() {
+                            notify.notify()
+                        }
                     }
-                }
-            });
+                },
+                listener_options,
+            );
             // Listen to internal storage events
-            let _ = use_event_listener(
+            let _ = use_event_listener_with_options(
                 use_window(),
                 leptos::ev::Custom::new(INTERNAL_STORAGE_EVENT),
                 {
@@ -394,6 +401,7 @@ where
                         }
                     }
                 },
+                listener_options,
             );
         };
 

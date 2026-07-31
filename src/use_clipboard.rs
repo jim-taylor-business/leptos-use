@@ -1,4 +1,7 @@
-use crate::{UseTimeoutFnReturn, js, js_fut, sendwrap_fn, use_event_listener, use_supported};
+use crate::{
+    UseEventListenerOptions, UseTimeoutFnReturn, js, js_fut, sendwrap_fn,
+    use_event_listener_with_options, use_supported,
+};
 use default_struct_builder::DefaultBuilder;
 use leptos::ev::{copy, cut};
 use leptos::prelude::*;
@@ -94,8 +97,9 @@ pub fn use_clipboard_with_options(
     };
 
     if is_supported.get_untracked() && read {
-        let _ = use_event_listener(window(), copy, update_text);
-        let _ = use_event_listener(window(), cut, update_text);
+        let listener_options = UseEventListenerOptions::default().passive(true);
+        let _ = use_event_listener_with_options(window(), copy, update_text, listener_options);
+        let _ = use_event_listener_with_options(window(), cut, update_text, listener_options);
     }
 
     let do_copy = {

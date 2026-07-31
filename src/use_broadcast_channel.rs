@@ -1,6 +1,6 @@
 use crate::core::OptionLocalRwSignal;
 use crate::{
-    UseEventListenerOptions, core::OptionLocalSignal, js, sendwrap_fn, use_event_listener,
+    UseEventListenerOptions, core::OptionLocalSignal, js, sendwrap_fn,
     use_event_listener_with_options, use_supported,
 };
 use codee::{CodecError, Decoder, Encoder};
@@ -167,9 +167,12 @@ where
                         UseEventListenerOptions::default().passive(true),
                     );
 
-                    let _ = use_event_listener(channel, leptos::ev::close, move |_| {
-                        set_closed.set(true)
-                    });
+                    let _ = use_event_listener_with_options(
+                        channel,
+                        leptos::ev::close,
+                        move |_| set_closed.set(true),
+                        UseEventListenerOptions::default().passive(true),
+                    );
                 }
             }
         }
