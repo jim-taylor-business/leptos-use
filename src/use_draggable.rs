@@ -201,25 +201,77 @@ where
 
     let dragging_element = dragging_element.into_element_maybe_signal();
 
-    let listener_options = UseEventListenerOptions::default().capture(true);
+    let passive_dragging_handle = Signal::derive(move || {
+        if prevent_default.get() {
+            None
+        } else {
+            dragging_handle.get()
+        }
+    });
+    let non_passive_dragging_handle = Signal::derive(move || {
+        if prevent_default.get() {
+            dragging_handle.get()
+        } else {
+            None
+        }
+    });
+    let passive_dragging_element = Signal::derive(move || {
+        if prevent_default.get() {
+            None
+        } else {
+            dragging_element.get()
+        }
+    });
+    let non_passive_dragging_element = Signal::derive(move || {
+        if prevent_default.get() {
+            dragging_element.get()
+        } else {
+            None
+        }
+    });
+
+    let passive_listener_options = UseEventListenerOptions::default()
+        .capture(true)
+        .passive(true);
+    let non_passive_listener_options = UseEventListenerOptions::default()
+        .capture(true)
+        .passive(false);
 
     let _ = use_event_listener_with_options(
-        dragging_handle,
+        passive_dragging_handle,
+        pointerdown,
+        on_pointer_down.clone(),
+        passive_listener_options,
+    );
+    let _ = use_event_listener_with_options(
+        non_passive_dragging_handle,
         pointerdown,
         on_pointer_down,
-        listener_options,
+        non_passive_listener_options,
     );
     let _ = use_event_listener_with_options(
-        dragging_element,
+        passive_dragging_element,
+        pointermove,
+        on_pointer_move.clone(),
+        passive_listener_options,
+    );
+    let _ = use_event_listener_with_options(
+        non_passive_dragging_element,
         pointermove,
         on_pointer_move,
-        listener_options,
+        non_passive_listener_options,
     );
     let _ = use_event_listener_with_options(
-        dragging_element,
+        passive_dragging_element,
+        pointerup,
+        on_pointer_up.clone(),
+        passive_listener_options,
+    );
+    let _ = use_event_listener_with_options(
+        non_passive_dragging_element,
         pointerup,
         on_pointer_up,
-        listener_options,
+        non_passive_listener_options,
     );
 
     UseDraggableReturn {

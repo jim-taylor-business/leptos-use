@@ -104,8 +104,7 @@ pub fn use_idle_with_options(
     {
         use crate::utils::create_filter_wrapper;
         use crate::{
-            UseEventListenerOptions, sendwrap_fn, use_document, use_event_listener,
-            use_event_listener_with_options,
+            UseEventListenerOptions, sendwrap_fn, use_document, use_event_listener_with_options,
         };
         use leptos::ev::{Custom, visibilitychange};
         use leptos::leptos_dom::helpers::TimeoutHandle;
@@ -158,11 +157,16 @@ pub fn use_idle_with_options(
         if listen_for_visibility_change {
             let on_event = on_event.clone();
 
-            let _ = use_event_listener(use_document(), visibilitychange, move |evt| {
-                if !document().hidden() {
-                    on_event(evt);
-                }
-            });
+            let _ = use_event_listener_with_options(
+                use_document(),
+                visibilitychange,
+                move |evt| {
+                    if !document().hidden() {
+                        on_event(evt);
+                    }
+                },
+                listener_options,
+            );
         }
 
         reset.clone()();

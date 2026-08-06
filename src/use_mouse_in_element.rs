@@ -113,7 +113,7 @@ where
 
     #[cfg(not(feature = "ssr"))]
     {
-        use crate::{sendwrap_fn, use_event_listener};
+        use crate::{UseEventListenerOptions, sendwrap_fn, use_event_listener_with_options};
         use leptos::ev::mouseleave;
 
         let target = target.into_element_maybe_signal();
@@ -159,7 +159,12 @@ where
 
         stop = sendwrap_fn!(move || effect.stop());
 
-        let _ = use_event_listener(document(), mouseleave, move |_| set_outside.set(true));
+        let _ = use_event_listener_with_options(
+            document(),
+            mouseleave,
+            move |_| set_outside.set(true),
+            UseEventListenerOptions::default().passive(true),
+        );
     }
 
     UseMouseInElementReturn {

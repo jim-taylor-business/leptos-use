@@ -32,7 +32,7 @@ pub fn use_permission(permission_name: &str) -> Signal<PermissionState> {
 
     #[cfg(not(feature = "ssr"))]
     {
-        use crate::use_event_listener;
+        use crate::{UseEventListenerOptions, use_event_listener_with_options};
         use std::cell::RefCell;
         use std::rc::Rc;
 
@@ -53,10 +53,15 @@ pub fn use_permission(permission_name: &str) -> Signal<PermissionState> {
 
             async move {
                 if let Ok(status) = query_permission(permission_name).await {
-                    let _ = use_event_listener(status.clone(), leptos::ev::change, {
-                        let on_change = on_change.clone();
-                        move |_| on_change()
-                    });
+                    let _ = use_event_listener_with_options(
+                        status.clone(),
+                        leptos::ev::change,
+                        {
+                            let on_change = on_change.clone();
+                            move |_| on_change()
+                        },
+                        UseEventListenerOptions::default().passive(true),
+                    );
                     permission_status.replace(Some(status));
                     on_change();
                 } else {
