@@ -142,8 +142,8 @@ where
                     set_outside.set(
                         width == 0.0
                             || height == 0.0
-                            || el_x <= 0.0
-                            || el_y <= 0.0
+                            || el_x < 0.0
+                            || el_y < 0.0
                             || el_x > width
                             || el_y > height,
                     );
