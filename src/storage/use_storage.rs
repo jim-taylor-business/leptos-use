@@ -318,6 +318,7 @@ where
             let storage = storage.to_owned();
             let on_error = on_error.to_owned();
             let dispatch_storage_event = dispatch_storage_event.to_owned();
+            let default = default.clone();
 
             let _ = watch_with_options(
                 move || (notify_id.get(), data.get()),
@@ -417,6 +418,10 @@ where
         // Remove from storage fn
         let remove = {
             sendwrap_fn!(move || {
+                // Reset the signal right away just like on the server. The
+                // notification below only refetches on the next reactive tick.
+                set_data.set(default.clone());
+
                 let _ = storage.as_ref().map(|storage| {
                     // Delete directly from storage
                     let result = storage
