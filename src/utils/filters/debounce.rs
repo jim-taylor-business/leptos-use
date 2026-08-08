@@ -36,9 +36,11 @@ where
 
     on_cleanup({
         let timer = Arc::clone(&timer);
+        let max_timer = Arc::clone(&max_timer);
 
         move || {
             clear_timeout(&timer);
+            clear_timeout(&max_timer);
         }
     });
 
