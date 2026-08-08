@@ -230,15 +230,12 @@ where
                     // Note: we cannot construct a full StorageEvent so we _must_ rely on a custom event
                     let custom = web_sys::CustomEventInit::new();
                     custom.set_detail(&JsValue::from_str(&key.get_untracked()));
-                    let result = window()
-                        .dispatch_event(
-                            &web_sys::CustomEvent::new_with_event_init_dict(
-                                INTERNAL_STORAGE_EVENT,
-                                &custom,
-                            )
-                            .expect("failed to create custom storage event"),
-                        )
-                        .map_err(UseStorageError::NotifyItemChangedFailed);
+                    let result = web_sys::CustomEvent::new_with_event_init_dict(
+                        INTERNAL_STORAGE_EVENT,
+                        &custom,
+                    )
+                    .and_then(|event| window().dispatch_event(&event))
+                    .map_err(UseStorageError::NotifyItemChangedFailed);
                     let _ = handle_error(&on_error, result);
                 })
             }
