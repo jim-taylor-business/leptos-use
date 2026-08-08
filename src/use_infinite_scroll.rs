@@ -156,12 +156,13 @@ where
                     let scroll_width = observed_element.scroll_width();
                     let client_width = observed_element.client_width();
 
-                    let is_narrower =
-                        if direction == Direction::Bottom || direction == Direction::Top {
-                            scroll_height <= client_height
-                        } else {
-                            scroll_width <= client_width
-                        };
+                    let is_vertical = direction == Direction::Bottom || direction == Direction::Top;
+
+                    let is_narrower = if is_vertical {
+                        scroll_height <= client_height
+                    } else {
+                        scroll_width <= client_width
+                    };
 
                     if (state.arrived_state.get_untracked().get_direction(direction) || is_narrower)
                         && !is_loading.get_untracked()
@@ -169,6 +170,12 @@ where
                         set_loading.set(true);
 
                         let measure = measure.clone();
+                        let scroll_size_before = if is_vertical {
+                            scroll_height
+                        } else {
+                            scroll_width
+                        };
+
                         leptos::task::spawn_local(async move {
                             #[cfg(debug_assertions)]
                             let zone =
@@ -185,7 +192,17 @@ where
                             set_loading.try_set(false);
                             sleep(Duration::ZERO).await;
                             measure();
-                            if let Some(check_and_load) = check_and_load.try_get_value().flatten() {
+
+                            let scroll_size_after = if is_vertical {
+                                observed_element.scroll_height()
+                            } else {
+                                observed_element.scroll_width()
+                            };
+
+                            if scroll_size_after > scroll_size_before
+                                && let Some(check_and_load) =
+                                    check_and_load.try_get_value().flatten()
+                            {
                                 check_and_load();
                             }
                         });
