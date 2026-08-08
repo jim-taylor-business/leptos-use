@@ -97,7 +97,7 @@ where
                             invoke();
                             clear();
                         },
-                        Duration::from_millis(remaining as u64),
+                        Duration::from_millis((remaining as u64).min(i32::MAX as u64)),
                     )
                     .ok();
             }}
@@ -112,7 +112,7 @@ where
                         move || {
                             is_leading.store(true, std::sync::atomic::Ordering::Relaxed);
                         },
-                        Duration::from_millis(duration as u64),
+                        Duration::from_millis((duration as u64).min(i32::MAX as u64)),
                     )
                     .ok();
             }
