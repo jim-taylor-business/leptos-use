@@ -119,7 +119,7 @@ where
 pub struct WatchThrottledOptions {
     /// If `immediate` is false, the `callback` will not run immediately but only after
     /// the first change is detected of any signal that is accessed in `deps`.
-    /// Defaults to `true`.
+    /// Defaults to `false`.
     immediate: bool,
 
     /// Invoke on the trailing edge of the timeout. Defaults to `true`.
