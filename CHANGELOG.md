@@ -3,7 +3,57 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.18.1] - 2026-02-24
+## [0.19.1] - 2026-07-23
+
+### Fixes 🍕
+
+- `use_cycle_list`: panic when the list becomes empty (thanks @sabify)
+- `use_user_media` / `use_display_media`: devices not released on unmount (thanks @sabify)
+- `watch_with_options`: previous return value lost across filtered runs (thanks @sabify)
+
+## [0.19.0] - 2026-06-22
+
+### New Functions 🚀
+
+- `use_intl_datetime_format`
+- `js!` macro is now documented as well as more powerful (thanks @Davoodeh)
+
+### Breaking Changes 🛠
+
+- Updated a bunch of dependencies
+
+### Changes
+
+- Made `use_infinite_scroll` SSR safe
+
+### Fixes 🍕
+
+- fixed tracking context warning with use_mutation_observer.
+- `use_timeout_fn` now properly handles timeouts and cleanup when repeatedly calling `start` (thanks @EvanCarroll).
+- enabling only the `use_favicon` Cargo feature now works correctly (thanks @arnaudpoullet-dkt).
+
+### Special thanks to our sponsor
+- @benwis
+
+## [0.18.3] - 2026-02-25
+
+### Fixes 🍕
+
+- Updated `web-sys` to min version `^0.3.89` because of yanked versions of `js-sys`.
+
+### Special thanks to our sponsor
+- @benwis
+
+## (yanked) [0.18.2] - 2026-02-25
+
+### Fixes 🍕
+
+- Made things work with both, cfg flag `web_sys_unstable_apis` enabled and disabled (thanks to @emilbonnek).
+
+### Special thanks to our sponsor
+- @benwis
+
+## (yanked) [0.18.1] - 2026-02-24
 
 ### Fixes 🍕
 

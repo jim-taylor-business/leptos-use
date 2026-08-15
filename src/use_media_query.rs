@@ -1,6 +1,6 @@
 #![cfg_attr(feature = "ssr", allow(unused_variables, unused_imports, dead_code))]
 
-use crate::use_event_listener;
+use crate::{UseEventListenerOptions, use_event_listener_with_options};
 use cfg_if::cfg_if;
 use leptos::ev::change;
 use leptos::prelude::*;
@@ -78,10 +78,11 @@ pub fn use_media_query(query: impl Into<Signal<String>>) -> Signal<bool> {
 
                     let listener = Rc::clone(&*listener.borrow());
 
-                    remove_listener.replace(Some(Box::new(use_event_listener(
+                    remove_listener.replace(Some(Box::new(use_event_listener_with_options(
                         media_query.clone(),
                         change,
                         move |e| listener(e),
+                        UseEventListenerOptions::default().passive(true),
                     ))));
                 } else {
                     set_matches.set(false);

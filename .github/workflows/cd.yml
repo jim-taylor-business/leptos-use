@@ -14,13 +14,14 @@ jobs:
     name: Publish
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v7
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: nightly
-          profile: minimal
-          override: true
           components: rustfmt, clippy, rust-src
+
       - name: Cache
         uses: Swatinem/rust-cache@v2
 
@@ -35,16 +36,16 @@ jobs:
         run: cargo clippy --features docs,math --tests -- -D warnings
 
       - name: Run tests (general)
-        run: cargo test --features math,docs,ssr
+        run: RUSTFLAGS="--cfg=web_sys_unstable_apis" cargo test --features math,docs,ssr
       - name: Run tests (axum) use_cookie
-        run: cargo test --features math,docs,ssr,axum --doc use_cookie
+        run: RUSTFLAGS="--cfg=web_sys_unstable_apis" cargo test --features math,docs,ssr,axum --doc use_cookie
       - name: Run tests (axum) use_locale
-        run: cargo test --features math,docs,ssr,axum --doc use_locale
+        run: RUSTFLAGS="--cfg=web_sys_unstable_apis" cargo test --features math,docs,ssr,axum --doc use_locale
       # TODO : at the moment this gives weird compilation errors that have nothing to do with leptos-use
       # - name: Run tests (actix) use_cookie
-      #   run: cargo test --features math,docs,ssr,actix --doc use_cookie
+      #   run: RUSTFLAGS="--cfg=web_sys_unstable_apis" cargo test --features math,docs,ssr,actix --doc use_cookie
       # - name: Run tests (actix) use_locale
-      #   run: cargo test --features math,docs,ssr,actix --doc use_locale
+      #   run: RUSTFLAGS="--cfg=web_sys_unstable_apis" cargo test --features math,docs,ssr,actix --doc use_locale
 
       #### mdbook
       - name: Install mdbook I
@@ -54,23 +55,23 @@ jobs:
       - name: Install mdbook II
         run: |
           cargo binstall -y mdbook-cmdrun
-          cargo binstall -y trunk@0.17.5
+          cargo binstall -y trunk
           rustup target add wasm32-unknown-unknown
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
       - name: Build mdbook # TODO : run mdbook tests
         run: |
           cd docs/book
           mdbook build
           python3 post_build.py
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./docs/book/book
       - name: Deploy book to github pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
       ##### mdbook end
 
       - name: Publish crate leptos-use

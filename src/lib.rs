@@ -1,4 +1,4 @@
-#![allow(unexpected_cfgs)]
+#![allow(unexpected_cfgs, clippy::extra_unused_lifetimes)]
 // #![feature(doc_cfg)]
 //! Collection of essential Leptos utilities inspired by SolidJS USE / VueUse
 
@@ -94,6 +94,8 @@ mod use_intersection_observer;
 mod use_interval;
 #[cfg(feature = "use_interval_fn")]
 mod use_interval_fn;
+#[cfg(feature = "use_intl_datetime_format")]
+mod use_intl_datetime_format;
 #[cfg(feature = "use_intl_number_format")]
 mod use_intl_number_format;
 #[cfg(feature = "use_locale")]
@@ -246,6 +248,9 @@ pub use use_intersection_observer::*;
 pub use use_interval::*;
 #[cfg(feature = "use_interval_fn")]
 pub use use_interval_fn::*;
+#[cfg(feature = "use_intl_datetime_format")]
+#[allow(ambiguous_glob_reexports)]
+pub use use_intl_datetime_format::*;
 #[cfg(feature = "use_intl_number_format")]
 pub use use_intl_number_format::*;
 #[cfg(feature = "use_locale")]

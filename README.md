@@ -13,7 +13,7 @@
     <a href="https://crates.io/crates/leptos-use"><img src="https://img.shields.io/crates/v/leptos-use.svg?label=&color=%232C1275" alt="Crates.io"/></a>
     <a href="https://leptos-use.rs/server_side_rendering.html"><img src="https://img.shields.io/badge/-SSR-%236a214b" alt="SSR"></a> 
     <a href="https://leptos-use.rs"><img src="https://img.shields.io/badge/-docs%20%26%20demos-%239A233F" alt="Docs & Demos"></a> 
-    <a href="https://leptos-use.rs"><img src="https://img.shields.io/badge/-89%20functions-%23EF3939" alt="89 Functions" /></a>
+    <a href="https://leptos-use.rs"><img src="https://img.shields.io/badge/-90%20functions-%23EF3939" alt="90 Functions" /></a>
 </p>
 
 <br/>
@@ -108,4 +108,4 @@ This will create the function file in the src directory, scaffold an example dir
 | 0.7, 0.8, 0.9    | 0.5                       |
 | 0.10 – 0.13      | 0.6                       |
 | 0.14, 0.15       | 0.7                       |
-| 0.16, 0.17, 0.18 | 0.8                       |
+| 0.16 - 0.19      | 0.8                       |

@@ -101,6 +101,11 @@ pub fn use_user_media_with_options(
         stream.set(None);
     };
 
+    // Without this the tracks keep running (and the camera/microphone indicator
+    // stays on) after the owner is disposed, with no handle left to stop them.
+    #[cfg(not(feature = "ssr"))]
+    on_cleanup(_stop);
+
     let start = {
         #[cfg(not(feature = "ssr"))]
         let _start = _start.clone();
@@ -233,7 +238,7 @@ async fn create_media(
 
                 if let Some(value) = zoom {
                     // TODO : once web_sys implements this add it to the methods above
-                    js! { js_value["zoom"] = value.to_jsvalue()};
+                    _ = js!(js_value["zoom"] = value.to_jsvalue());
                 }
 
                 constraints.set_video(&js_value);

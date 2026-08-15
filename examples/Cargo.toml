@@ -38,6 +38,7 @@ members = [
     "use_intersection_observer",
     "use_interval",
     "use_interval_fn",
+    "use_intl_datetime_format",
     "use_intl_number_format",
     "use_locale",
     "use_locales",
@@ -91,7 +92,7 @@ wasm-bindgen-test = "0.3"
 [package]
 name = "leptos-use-examples"
 version = "0.3.3"
-edition = "2021"
+edition = "2024"
 
 [profile.release]
 opt-level = 'z'
