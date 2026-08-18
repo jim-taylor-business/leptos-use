@@ -138,7 +138,7 @@ where
 
         let _ = use_event_listener(target, dragleave, move |event| {
             event.prevent_default();
-            counter.update_value(|counter| *counter -= 1);
+            counter.update_value(|counter| *counter = counter.saturating_sub(1));
             if counter.get_value() == 0 {
                 set_over_drop_zone.set(false);
             }

@@ -261,7 +261,7 @@ where
             move |target: ElementMaybeSignal<web_sys::Element>,
                   attribute: String,
                   value: ColorMode| {
-                let el = target.get_untracked();
+                let el = target.get();
 
                 if let Some(el) = el {
                     let mut style: Option<web_sys::HtmlStyleElement> = None;

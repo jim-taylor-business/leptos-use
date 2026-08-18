@@ -122,7 +122,7 @@ pub fn use_idle_with_options(
                 if let Some(timer) = timer.replace(
                     set_timeout_with_handle(
                         move || set_idle.set(true),
-                        Duration::from_millis(timeout),
+                        Duration::from_millis(timeout.min(i32::MAX as u64)),
                     )
                     .ok(),
                 ) {

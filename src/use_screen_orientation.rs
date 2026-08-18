@@ -46,56 +46,82 @@ pub fn use_screen_orientation() -> UseScreenOrientationReturn<
     {
         use std::rc::Rc;
 
-        use crate::{UseEventListenerOptions, sendwrap_fn, use_event_listener_with_options};
+        use crate::{
+            UseEventListenerOptions, js_fut, sendwrap_fn, use_event_listener_with_options,
+        };
         use leptos::ev::orientationchange;
+        use leptos::logging::debug_warn;
 
-        let screen_orientation = Rc::new(
-            window()
-                .screen()
-                .expect("screen not available")
-                .orientation(),
-        );
+        let screen_orientation = window()
+            .screen()
+            .ok()
+            .map(|screen| Rc::new(screen.orientation()));
+
+        let read_orientation = |screen_orientation: &web_sys::ScreenOrientation| {
+            screen_orientation
+                .type_()
+                .map_or(ScreenOrientation::PortraitPrimary, Into::into)
+        };
 
         let (orientation, set_orientation) = signal(
             screen_orientation
-                .type_()
-                .expect("cannot read screen orientation")
-                .into(),
+                .as_ref()
+                .map_or(ScreenOrientation::PortraitPrimary, |screen_orientation| {
+                    read_orientation(screen_orientation)
+                }),
         );
-        let (angle, set_angle) = signal(screen_orientation.angle().unwrap_or_default());
+        let (angle, set_angle) = signal(
+            screen_orientation
+                .as_ref()
+                .and_then(|screen_orientation| screen_orientation.angle().ok())
+                .unwrap_or_default(),
+        );
 
         let _ = use_event_listener_with_options(
             window(),
             orientationchange,
             {
-                let screen_orientation = Rc::clone(&screen_orientation);
+                let screen_orientation = screen_orientation.clone();
 
                 move |_| {
-                    set_orientation.set(
-                        screen_orientation
-                            .type_()
-                            .expect("cannot read screen orientation")
-                            .into(),
-                    );
-                    set_angle.set(screen_orientation.angle().unwrap_or_default());
+                    if let Some(screen_orientation) = screen_orientation.as_ref() {
+                        set_orientation.set(read_orientation(screen_orientation));
+                        set_angle.set(screen_orientation.angle().unwrap_or_default());
+                    }
                 }
             },
             UseEventListenerOptions::default().passive(true),
         );
 
         let lock_orientation = {
-            let screen_orientation = Rc::clone(&screen_orientation);
+            let screen_orientation = screen_orientation.clone();
+
             sendwrap_fn!(move |lock: ScreenOrientationLock| {
-                let _ = screen_orientation
-                    .lock(lock.into())
-                    .expect("cannot lock screen orientation");
+                let Some(screen_orientation) = screen_orientation.as_ref() else {
+                    return;
+                };
+
+                match screen_orientation.lock(lock.into()) {
+                    Ok(promise) => {
+                        leptos::task::spawn_local(async move {
+                            if let Err(err) = js_fut!(promise).await {
+                                debug_warn!("cannot lock screen orientation: {:?}", err);
+                            }
+                        });
+                    }
+                    Err(err) => {
+                        debug_warn!("cannot lock screen orientation: {:?}", err);
+                    }
+                }
             })
         };
 
         let unlock_orientation = sendwrap_fn!(move || {
-            screen_orientation
-                .unlock()
-                .expect("cannot unlock screen orientation");
+            if let Some(screen_orientation) = screen_orientation.as_ref()
+                && let Err(err) = screen_orientation.unlock()
+            {
+                debug_warn!("cannot unlock screen orientation: {:?}", err);
+            }
         });
 
         UseScreenOrientationReturn {

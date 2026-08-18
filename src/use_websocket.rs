@@ -360,6 +360,10 @@ where
         let reconnect_times_ref: StoredValue<u64> = StoredValue::new(0);
         let manually_closed_ref: StoredValue<bool> = StoredValue::new(false);
 
+        // Identifies the socket the handlers below belong to. Handlers of a socket that has
+        // since been superseded must not touch the shared state anymore.
+        let connection_id_ref: StoredValue<u64> = StoredValue::new(0);
+
         let unmounted = Arc::new(AtomicBool::new(false));
 
         let connect_ref: StoredValue<Option<Arc<dyn Fn() + Send + Sync>>> = StoredValue::new(None);
@@ -485,6 +489,9 @@ where
                     let _ = web_socket.close();
                 }
 
+                connection_id_ref.update_value(|id| *id += 1);
+                let connection_id = connection_id_ref.get_value();
+
                 let web_socket = {
                     protocols.with_untracked(|protocols| {
                         protocols.as_ref().map_or_else(
@@ -512,7 +519,9 @@ where
                         let start_heartbeat = start_heartbeat.clone();
 
                         move |e: Event| {
-                            if unmounted.load(std::sync::atomic::Ordering::Relaxed) {
+                            if unmounted.load(std::sync::atomic::Ordering::Relaxed)
+                                || connection_id_ref.get_value() != connection_id
+                            {
                                 return;
                             }
 
@@ -544,7 +553,9 @@ where
                     let on_error = Arc::clone(&on_error);
 
                     let onmessage_closure = Closure::wrap(Box::new(move |e: MessageEvent| {
-                        if unmounted.load(std::sync::atomic::Ordering::Relaxed) {
+                        if unmounted.load(std::sync::atomic::Ordering::Relaxed)
+                            || connection_id_ref.get_value() != connection_id
+                        {
                             return;
                         }
 
@@ -629,7 +640,9 @@ where
                     let on_error = Arc::clone(&on_error);
 
                     let onerror_closure = Closure::wrap(Box::new(move |e: Event| {
-                        if unmounted.load(std::sync::atomic::Ordering::Relaxed) {
+                        if unmounted.load(std::sync::atomic::Ordering::Relaxed)
+                            || connection_id_ref.get_value() != connection_id
+                        {
                             return;
                         }
 
@@ -661,7 +674,9 @@ where
                     let on_close = Arc::clone(&on_close);
 
                     let onclose_closure = Closure::wrap(Box::new(move |e: CloseEvent| {
-                        if unmounted.load(std::sync::atomic::Ordering::Relaxed) {
+                        if unmounted.load(std::sync::atomic::Ordering::Relaxed)
+                            || connection_id_ref.get_value() != connection_id
+                        {
                             return;
                         }
 

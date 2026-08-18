@@ -110,55 +110,60 @@ where
 
         let interval = interval.into();
 
-        resume = sendwrap_fn!(move || {
-            #[cfg(not(feature = "ssr"))]
-            {
-                let interval_value = interval.get();
-                if interval_value == 0 {
-                    return;
-                }
-
-                set_active.set(true);
-
-                let callback = {
-                    let callback = callback.clone();
-
-                    move || {
-                        #[cfg(debug_assertions)]
-                        let _z = leptos::reactive::diagnostics::SpecialNonReactiveZone::enter();
-
-                        callback();
-                    }
-                };
-
-                if immediate_callback {
-                    callback.clone()();
-                }
-                clean();
-
-                timer.set(
-                    set_interval_with_handle(
-                        callback.clone(),
-                        Duration::from_millis(interval_value),
-                    )
-                    .ok(),
-                );
+        // `run_immediate_callback` is only `true` for user initiated (re)starts. Restarts
+        // that are triggered by a change of the `interval` signal must not fire an extra
+        // out-of-cadence callback.
+        let start = move |run_immediate_callback: bool| {
+            let interval_value = interval.get();
+            if interval_value == 0 {
+                return;
             }
-        });
+
+            set_active.set(true);
+
+            let callback = {
+                let callback = callback.clone();
+
+                move || {
+                    #[cfg(debug_assertions)]
+                    let _z = leptos::reactive::diagnostics::SpecialNonReactiveZone::enter();
+
+                    callback();
+                }
+            };
+
+            if run_immediate_callback {
+                callback.clone()();
+            }
+            clean();
+
+            timer.set(
+                set_interval_with_handle(
+                    callback,
+                    Duration::from_millis(interval_value.min(i32::MAX as u64)),
+                )
+                .ok(),
+            );
+        };
+
+        resume = {
+            let start = start.clone();
+
+            sendwrap_fn!(move || start(immediate_callback))
+        };
 
         if immediate {
             resume();
         }
 
         {
-            #[allow(clippy::clone_on_copy)]
-            let resume = resume.clone();
+            let restart = sendwrap_fn!(move || start(false));
 
             let effect = Effect::watch(
                 move || interval.get(),
                 move |_, _, _| {
                     if is_active.get() {
-                        resume();
+                        restart();
                     }
                 },
                 false,

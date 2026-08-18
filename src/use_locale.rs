@@ -66,28 +66,26 @@ where
 
     Signal::derive(move || {
         client_locales.with(|client_locales| {
-            let mut supported_iter = supported.iter().peekable();
-
-            // Checked it's not empty above.
-            let first_supported = *supported_iter.peek().unwrap();
-
             for client_locale in client_locales {
-                let supported_iter = supported_iter.clone();
+                let Ok(client_locale) = client_locale.parse::<LanguageIdentifier>() else {
+                    warn!("Received an invalid LanguageIdentifier");
+                    continue;
+                };
 
-                for s in supported_iter {
-                    let client_locale = client_locale.parse::<LanguageIdentifier>();
+                if let Some(s) = supported.iter().find(|s| **s == client_locale) {
+                    return s.clone();
+                }
 
-                    if let Ok(client_locale) = client_locale {
-                        if client_locale.matches(s, true, true) {
-                            return (*s).clone();
-                        }
-                    } else {
-                        warn!("Received an invalid LanguageIdentifier")
-                    }
+                if let Some(s) = supported
+                    .iter()
+                    .find(|s| client_locale.matches(*s, true, true))
+                {
+                    return s.clone();
                 }
             }
 
-            (*first_supported).clone()
+            // Checked it's not empty above.
+            supported.first().expect(EMPTY_ERR_MSG).clone()
         })
     })
 }

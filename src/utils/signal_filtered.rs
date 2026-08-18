@@ -84,10 +84,6 @@ macro_rules! signal_filtered_macro_impl{
             let value = value.into();
             let ms = ms.into();
 
-            if ms.get_untracked() <= 0.0 {
-                return value;
-            }
-
             let (filtered, set_filtered) = ::leptos::prelude::RwSignal::<T, $storage>::new_with_storage(value.get_untracked()).split();
 
             let update = [<use_ $filter_name _fn_with_options>](

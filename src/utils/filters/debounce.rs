@@ -36,9 +36,11 @@ where
 
     on_cleanup({
         let timer = Arc::clone(&timer);
+        let max_timer = Arc::clone(&max_timer);
 
         move || {
             clear_timeout(&timer);
+            clear_timeout(&max_timer);
         }
     });
 
@@ -91,7 +93,7 @@ where
                             *max_timer_slot.lock().unwrap() = None;
                             invok();
                         },
-                        Duration::from_millis(max_duration as u64),
+                        Duration::from_millis((max_duration as u64).min(i32::MAX as u64)),
                     )
                     .ok();
                 }
@@ -105,7 +107,7 @@ where
                     clear_timeout(&max_timer);
                     invoke();
                 },
-                Duration::from_millis(duration as u64),
+                Duration::from_millis((duration as u64).min(i32::MAX as u64)),
             )
             .ok();
         }}
