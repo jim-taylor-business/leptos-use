@@ -100,14 +100,11 @@ where
         }) as Box<dyn FnOnce(web_sys::Lock) -> _>)
         .into_js_value();
 
-        let lock_promise = window()
-            .navigator()
-            .locks()
-            .request_with_options_and_callback(
-                name,
-                &options.to_web_sys(),
-                handler.unchecked_ref(),
-            );
+        let lock_promise = window().navigator().locks().request_with_options(
+            name,
+            &options.to_web_sys(),
+            handler.unchecked_ref(),
+        );
 
         js_fut!(lock_promise)
             .await
