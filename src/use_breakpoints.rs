@@ -230,7 +230,7 @@ where
         format!("(min-width: {min}px) and (max-width: {}.9px)", max - 1)
     }
 
-    /// Reactive check if `min_key` <= `[screen size]` <= `max_key`
+    /// Reactive check if `min_key` <= `[screen size]` < `max_key`
     pub fn between(&self, min_key: K, max_key: K) -> Signal<bool> {
         if let Some(min) = self.breakpoints.get(&min_key) {
             if let Some(max) = self.breakpoints.get(&max_key) {
@@ -243,7 +243,7 @@ where
         }
     }
 
-    /// Static check if `min_key` <= `[screen size]` <= `max_key`
+    /// Static check if `min_key` <= `[screen size]` < `max_key`
     pub fn is_between(&self, min_key: K, max_key: K) -> bool {
         if let Some(min) = self.breakpoints.get(&min_key) {
             if let Some(max) = self.breakpoints.get(&max_key) {

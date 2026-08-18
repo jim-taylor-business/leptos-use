@@ -116,7 +116,7 @@ where
 pub struct WatchDebouncedOptions {
     /// If `immediate` is false, the `callback` will not run immediately but only after
     /// the first change is detected of any signal that is accessed in `deps`.
-    /// Defaults to `true`.
+    /// Defaults to `false`.
     immediate: bool,
 
     /// The maximum time allowed to be delayed before the callback invoked.

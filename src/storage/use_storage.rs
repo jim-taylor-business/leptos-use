@@ -230,15 +230,12 @@ where
                     // Note: we cannot construct a full StorageEvent so we _must_ rely on a custom event
                     let custom = web_sys::CustomEventInit::new();
                     custom.set_detail(&JsValue::from_str(&key.get_untracked()));
-                    let result = window()
-                        .dispatch_event(
-                            &web_sys::CustomEvent::new_with_event_init_dict(
-                                INTERNAL_STORAGE_EVENT,
-                                &custom,
-                            )
-                            .expect("failed to create custom storage event"),
-                        )
-                        .map_err(UseStorageError::NotifyItemChangedFailed);
+                    let result = web_sys::CustomEvent::new_with_event_init_dict(
+                        INTERNAL_STORAGE_EVENT,
+                        &custom,
+                    )
+                    .and_then(|event| window().dispatch_event(&event))
+                    .map_err(UseStorageError::NotifyItemChangedFailed);
                     let _ = handle_error(&on_error, result);
                 })
             }
@@ -313,6 +310,11 @@ where
             }
         });
 
+        // Notify id as of hook setup. The watch below runs its first tick deferred, so a
+        // notification can race in before then. Comparing against this baseline lets that
+        // first tick recognize an external change instead of assuming there was none.
+        let initial_notify_id = notify_id.get_untracked();
+
         // Set item on internal (non-event) page changes to the data signal
         {
             let storage = storage.to_owned();
@@ -323,8 +325,9 @@ where
                 move || (notify_id.get(), data.get()),
                 move |(id, value), prev, _| {
                     // Skip setting storage on changes from external events. The ID will change on external events.
-                    let change_from_external_event =
-                        prev.map(|(prev_id, _)| *prev_id != *id).unwrap_or_default();
+                    let change_from_external_event = prev
+                        .map(|(prev_id, _)| *prev_id != *id)
+                        .unwrap_or_else(|| *id != initial_notify_id);
 
                     if change_from_external_event {
                         return;
