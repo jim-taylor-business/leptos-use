@@ -1,14 +1,11 @@
 use leptos::prelude::*;
 
 #[cfg_attr(feature = "ssr", allow(dead_code))]
-fn get() -> web_sys::Url {
-    web_sys::Url::new(
-        &window()
-            .location()
-            .href()
-            .expect("Failed to get location.href from the browser"),
-    )
-    .expect("Failed to parse location.href from the browser")
+/// Returns `None` if `location.href` is inaccessible (for example in a sandboxed
+/// cross-origin iframe, where it throws a `SecurityError`) or cannot be parsed.
+fn get() -> Option<web_sys::Url> {
+    let href = window().location().href().ok()?;
+    web_sys::Url::new(&href).ok()
 }
 
 pub mod params {
@@ -21,7 +18,7 @@ pub mod params {
             None
         } else {
             use super::get as current_url;
-            current_url().search_params().get(k)
+            current_url()?.search_params().get(k)
         }}
     }
 }

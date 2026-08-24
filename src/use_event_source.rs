@@ -216,6 +216,7 @@ where
     #[cfg(not(feature = "ssr"))]
     {
         use crate::{sendwrap_fn, use_event_listener};
+        use leptos::leptos_dom::helpers::TimeoutHandle;
         use std::sync::atomic::{AtomicBool, AtomicU32};
         use std::time::Duration;
         use wasm_bindgen::prelude::*;
@@ -258,6 +259,16 @@ where
         };
 
         let init = StoredValue::new(None::<Arc<dyn Fn() + Send + Sync>>);
+
+        let reconnect_timer: StoredValue<Option<TimeoutHandle>> = StoredValue::new(None);
+
+        let clear_reconnect_timer = move || {
+            reconnect_timer.update_value(|timer| {
+                if let Some(timer) = timer.take() {
+                    timer.clear();
+                }
+            });
+        };
 
         let set_init = {
             let explicitly_closed = Arc::clone(&explicitly_closed);
@@ -325,13 +336,20 @@ where
                                         + 1;
 
                                     if !reconnect_limit.is_exceeded_by(retried_value as u64) {
-                                        set_timeout(
-                                            move || {
-                                                if let Some(init) = init.get_value() {
-                                                    init();
-                                                }
-                                            },
-                                            Duration::from_millis(reconnect_interval),
+                                        clear_reconnect_timer();
+
+                                        reconnect_timer.set_value(
+                                            set_timeout_with_handle(
+                                                move || {
+                                                    reconnect_timer.set_value(None);
+
+                                                    if let Some(init) = init.get_value() {
+                                                        init();
+                                                    }
+                                                },
+                                                Duration::from_millis(reconnect_interval),
+                                            )
+                                            .ok(),
                                         );
                                     } else {
                                         #[cfg(debug_assertions)]
@@ -380,6 +398,10 @@ where
             let explicitly_closed = Arc::clone(&explicitly_closed);
 
             sendwrap_fn!(move || {
+                // A reconnect scheduled by an earlier error would otherwise still fire and
+                // open a second connection behind the caller's back.
+                clear_reconnect_timer();
+
                 if let Some(event_source) = event_source.get_untracked() {
                     event_source.close();
                     set_event_source.set(None);

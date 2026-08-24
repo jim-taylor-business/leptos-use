@@ -26,11 +26,6 @@ where
     #[cfg(all(feature = "actix", feature = "axum"))]
     compile_error!("You can only enable one of features \"actix\" and \"axum\" at the same time");
 
-    #[cfg(feature = "actix")]
-    type HeaderValue = http0_2::HeaderValue;
-    #[cfg(feature = "axum")]
-    type HeaderValue = http1::HeaderValue;
-
     #[cfg(any(feature = "axum", feature = "actix"))]
     let headers;
     #[cfg(feature = "actix")]
@@ -45,14 +40,10 @@ where
 
     #[cfg(any(feature = "axum", feature = "actix"))]
     {
-        headers.map(|headers| {
+        headers.and_then(|headers| {
             headers
                 .get(name)
-                .cloned()
-                .unwrap_or_else(|| HeaderValue::from_static(""))
-                .to_str()
-                .unwrap_or_default()
-                .to_owned()
+                .map(|value| value.to_str().unwrap_or_default().to_owned())
         })
     }
 }

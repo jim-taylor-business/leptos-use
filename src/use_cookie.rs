@@ -227,7 +227,7 @@ where
     #[cfg(not(feature = "ssr"))]
     {
         use crate::{
-            UseBroadcastChannelReturn, WatchPausableReturn, use_broadcast_channel, watch_pausable,
+            UseBroadcastChannelReturn, WatchOptions, use_broadcast_channel, watch_with_options,
         };
         use codee::string::{FromToStringCodec, OptionCodec};
 
@@ -302,18 +302,27 @@ where
             }
         };
 
-        let WatchPausableReturn {
-            pause,
-            resume,
-            stop,
-            ..
-        } = watch_pausable(move || cookie.track(), {
-            let on_cookie_change = on_cookie_change.clone();
+        // Marks the next watcher invocation as originating from the broadcast
+        // channel. The watcher runs deferred, i.e. after the message handler has
+        // returned, so the flag has to survive until then.
+        let from_broadcast = StoredValue::new(false);
 
-            move |_, _, _| {
-                on_cookie_change();
-            }
-        });
+        let stop = watch_with_options(
+            move || cookie.track(),
+            {
+                let on_cookie_change = on_cookie_change.clone();
+
+                move |_, _, _| {
+                    if from_broadcast.get_value() {
+                        from_broadcast.set_value(false);
+                        return;
+                    }
+
+                    on_cookie_change();
+                }
+            },
+            WatchOptions::default(),
+        );
 
         // listen to cookie changes from the broadcast channel
         Effect::new({
@@ -322,8 +331,6 @@ where
 
             move |_| {
                 if let Some(message) = message.get() {
-                    pause();
-
                     if let Some(message) = message {
                         match C::decode(&message) {
                             Ok(value) => {
@@ -346,6 +353,7 @@ where
                                     );
                                 });
 
+                                from_broadcast.set_value(true);
                                 set_cookie.set(Some(value));
                             }
                             Err(err) => {
@@ -373,10 +381,9 @@ where
                             jar.force_remove(cookie_name);
                         });
 
+                        from_broadcast.set_value(true);
                         set_cookie.set(None);
                     }
-
-                    resume();
                 }
             }
         });

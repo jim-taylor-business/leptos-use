@@ -119,7 +119,7 @@ where
                 }
 
                 #[allow(clippy::unnecessary_cast)]
-                let position = Position {
+                let grab_offset = Position {
                     x: event.client_x() as f64 - x,
                     y: event.client_y() as f64 - y,
                 };
@@ -128,7 +128,7 @@ where
                 let zone = leptos::reactive::diagnostics::SpecialNonReactiveZone::enter();
 
                 if !on_start(UseDraggableCallbackArgs {
-                    position,
+                    position: Position { x, y },
                     event: event.clone(),
                 }) {
                     #[cfg(debug_assertions)]
@@ -139,7 +139,7 @@ where
                 #[cfg(debug_assertions)]
                 drop(zone);
 
-                set_start_position.set(Some(position));
+                set_start_position.set(Some(grab_offset));
                 handle_event(event);
             }
         }

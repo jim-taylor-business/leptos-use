@@ -114,7 +114,7 @@ where
                             callback(arg);
                         }
                     },
-                    Duration::from_millis(delay.get_untracked() as u64),
+                    Duration::from_millis((delay.get_untracked() as u64).min(i32::MAX as u64)),
                 )
                 .ok();
 

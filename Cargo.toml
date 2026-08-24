@@ -45,7 +45,7 @@ thiserror = "2"
 unic-langid = { version = "0.9", optional = true }
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
-web-sys = { version = "^0.3.89", optional = true }
+web-sys = { version = "^0.3.104", optional = true }
 
 [dev-dependencies]
 codee = { version = "0.3", features = [

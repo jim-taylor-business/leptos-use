@@ -159,18 +159,11 @@ where
                     );
 
                     let _ = use_event_listener_with_options(
-                        channel.clone(),
+                        channel,
                         messageerror,
                         move |event| {
                             error.set(Some(UseBroadcastChannelError::MessageEvent(event)));
                         },
-                        UseEventListenerOptions::default().passive(true),
-                    );
-
-                    let _ = use_event_listener_with_options(
-                        channel,
-                        leptos::ev::close,
-                        move |_| set_closed.set(true),
                         UseEventListenerOptions::default().passive(true),
                     );
                 }

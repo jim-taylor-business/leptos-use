@@ -97,6 +97,10 @@ pub fn use_geolocation_with_options(
                 if let Some(navigator) = navigator
                     && let Ok(geolocation) = navigator.geolocation()
                 {
+                    if let Some(handle) = watch_handle.lock().unwrap().take() {
+                        geolocation.clear_watch(handle);
+                    }
+
                     let update_position =
                         Closure::wrap(Box::new(update_position) as Box<dyn Fn(web_sys::Position)>);
                     let on_error =
